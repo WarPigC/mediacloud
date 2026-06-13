@@ -1,0 +1,30 @@
+services:
+  mediacloud:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/arm64
+    container_name: mediacloud
+    ports:
+      - "3000:3000"
+    volumes:
+      # Host → Container volume mounts
+      - /mnt/windows:/app/storage/windows_mount:rw
+      - /mnt/storage/mediacloud:/app/storage/ext4_mount:rw
+      # Persist SQLite database across rebuilds
+      - sqlite_data:/app/server/prisma
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  sqlite_data:
