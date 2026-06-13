@@ -1,34 +1,33 @@
-import { motion } from 'framer-motion';
-import { Cloud } from 'lucide-react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
+import Layout from './components/Layout';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import UploadPage from './pages/UploadPage';
+import PublicDownload from './pages/PublicDownload';
+import AdminPanel from './pages/AdminPanel';
 
-/**
- * Phase 1 placeholder — confirms the React + Tailwind + Framer Motion
- * pipeline is wired up correctly. Will be replaced in Phase 3.
- */
 export default function App() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-900">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="text-center"
-      >
-        <motion.div
-          animate={{ y: [0, -8, 0] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <Cloud className="mx-auto h-16 w-16 text-brand-400" />
-        </motion.div>
-
-        <h1 className="mt-6 text-4xl font-bold tracking-tight text-white">
-          Media<span className="text-brand-400">Cloud</span>
-        </h1>
-
-        <p className="mt-3 text-surface-200">
-          Phase 1 scaffold running — auth backend is live.
-        </p>
-      </motion.div>
-    </div>
+    <BrowserRouter>
+      <ToastProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/d/:hash" element={<PublicDownload />} />
+            
+            <Route element={<Layout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/upload" element={<UploadPage />} />
+              <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </ToastProvider>
+    </BrowserRouter>
   );
 }
