@@ -1,3 +1,7 @@
+# ════════════════════════════════════════════════════════════════
+# MediaCloud — Docker Compose (Raspberry Pi 5 Production)
+# ════════════════════════════════════════════════════════════════
+
 services:
   mediacloud:
     build:
@@ -8,23 +12,47 @@ services:
     container_name: mediacloud
     ports:
       - "3000:3000"
+
     volumes:
-      # Host → Container volume mounts
+      # ── Physical drive mounts (EXACT Pi 5 paths) ──
+      # sda1: NTFS "Elements" partition → admin-only storage
       - /mnt/windows:/app/storage/windows_mount:rw
+      # sda2: ext4 "mediacloud" dir → standard user storage + _tmp chunks
       - /mnt/storage/mediacloud:/app/storage/ext4_mount:rw
-      # Persist SQLite database across rebuilds
-      - sqlite_data:/app/server/prisma
+      # ── SQLite database persistence ──
+      # Named volume so the DB file survives container rebuilds.
+      # The DB lives at /app/data/mediacloud.db inside the container.
+      - sqlite_data:/app/data
+
     env_file:
-      - .env
+      - .env.production
+
     environment:
       - NODE_ENV=production
+      - DATABASE_URL=file:/app/data/mediacloud.db
+      - EXT4_MOUNT_PATH=/app/storage/ext4_mount
+      - NTFS_MOUNT_PATH=/app/storage/windows_mount
+      - PORT=3000
+
     restart: unless-stopped
+
+    # ── Resource limits for Pi 5 (4GB RAM) ──
     mem_limit: 512m
+    memswap_limit: 768m
+
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1))"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))",
+        ]
       interval: 30s
-      timeout: 5s
+      timeout: 10s
       retries: 3
+      start_period: 30s
 
 volumes:
   sqlite_data:
+    driver: local

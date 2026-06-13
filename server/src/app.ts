@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -51,6 +52,20 @@ app.use('/api/auth', authRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/admin', adminRoutes);
+
+// ─── Static Frontend (Production Only) ───
+// In production, Vite's built files are copied into /app/public by the Dockerfile.
+// Express serves them statically. The SPA catch-all ensures client-side routing
+// works for paths like /dashboard, /upload, /d/:hash, etc.
+if (env.NODE_ENV === 'production') {
+  const publicDir = path.resolve(__dirname, '..', 'public');
+  app.use(express.static(publicDir, { maxAge: '1y', immutable: true }));
+
+  // SPA catch-all: any non-API GET → index.html (client-side router takes over)
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(publicDir, 'index.html'));
+  });
+}
 
 // ─── Zod Validation Error Handler ───
 app.use(

@@ -1,0 +1,57 @@
+# ════════════════════════════════════════════════════════════════
+# MediaCloud — Cloudflare Tunnel Configuration
+# ════════════════════════════════════════════════════════════════
+#
+# Place this at: ~/.cloudflared/config.yml on the Pi
+# Then run: cloudflared tunnel run mediacloud
+#
+# KEY CONSTRAINTS:
+# - Free Cloudflare accounts hard-cap request bodies at 100MB.
+#   Our 5MB chunked uploads are well under this limit per-request.
+# - Cloudflare Tunnels can buffer multipart streams if
+#   noChunkedEncoding is left at its default (true), which causes
+#   the tunnel to wait for the entire request body before
+#   forwarding it. This kills our streaming strategy.
+# - Setting noChunkedEncoding: false tells cloudflared to
+#   stream request bodies through as-is, preserving our
+#   busboy → writeStream pipeline end-to-end.
+# ════════════════════════════════════════════════════════════════
+
+# Replace <TUNNEL_ID> with the output of: cloudflared tunnel create mediacloud
+# Replace <DOMAIN> with your actual domain (e.g., cloud.example.com)
+
+tunnel: <TUNNEL_ID>
+credentials-file: /home/pi/.cloudflared/<TUNNEL_ID>.json
+
+ingress:
+  - hostname: <DOMAIN>
+    service: http://localhost:3000
+    originRequest:
+      # ── Stream-through for chunked uploads ──
+      # By default cloudflared buffers the entire request body before
+      # forwarding it to the origin. For our 5MB multipart chunks,
+      # this adds latency and defeats the streaming pipeline.
+      # Setting this to false makes cloudflared stream request bytes
+      # directly to Express as they arrive from the client.
+      noChunkedEncoding: false
+
+      # ── Connection tuning for Pi 5 ──
+      # Keep connections alive to avoid TCP handshake overhead
+      # on repeated chunk uploads from the same client.
+      keepAliveConnections: 10
+      keepAliveTimeout: 90s
+
+      # ── Timeout settings ──
+      # Large file stitching (completeUpload) can take a few seconds
+      # for multi-GB files. 5 minutes gives plenty of headroom.
+      connectTimeout: 30s
+      noTLSVerify: false
+
+      # ── HTTP/2 to origin ──
+      # Enables HTTP/2 between cloudflared and Express.
+      # Allows multiplexing multiple chunk uploads over a single
+      # connection, reducing overhead on the Pi's limited resources.
+      http2Origin: true
+
+  # Required catch-all rule (Cloudflare rejects configs without it)
+  - service: http_status:404
