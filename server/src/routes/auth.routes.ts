@@ -29,16 +29,18 @@ const loginSchema = z.object({
 
 // ─── Cookie Helpers ───
 
-const isProduction = () => env.NODE_ENV === 'production';
-
 function setAuthCookies(
+  req: import('express').Request,
   res: import('express').Response,
   accessToken: string,
   refreshToken: string,
 ): void {
+  // Allow HTTP cookies on local network, enforce HTTPS when proxied via Cloudflare
+  const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
+
   res.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
     httpOnly: true,
-    secure: isProduction(),
+    secure: isSecure,
     sameSite: 'strict',
     path: '/',
     maxAge: 15 * 60 * 1000, // 15 minutes
@@ -46,7 +48,7 @@ function setAuthCookies(
 
   res.cookie(REFRESH_TOKEN_COOKIE, refreshToken, {
     httpOnly: true,
-    secure: isProduction(),
+    secure: isSecure,
     sameSite: 'strict',
     path: '/api/auth', // Only sent to auth endpoints
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
@@ -93,7 +95,7 @@ router.post(
       req.headers['user-agent'],
     );
 
-    setAuthCookies(res, accessToken, refreshToken);
+    setAuthCookies(req, res, accessToken, refreshToken);
 
     res.json({ success: true, data: profile });
   }),
@@ -129,7 +131,7 @@ router.post(
       req.headers['user-agent'],
     );
 
-    setAuthCookies(res, accessToken, refreshToken);
+    setAuthCookies(req, res, accessToken, refreshToken);
 
     res.json({ success: true });
   }),
