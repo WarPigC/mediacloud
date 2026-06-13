@@ -6,6 +6,9 @@ import { env } from './config/env';
 import { globalLimiter } from './middleware/rateLimiter';
 import { globalErrorHandler } from './middleware/errorHandler';
 import authRoutes from './routes/auth.routes';
+import fileRoutes from './routes/file.routes';
+import publicRoutes from './routes/public.routes';
+import adminRoutes from './routes/admin.routes';
 import { ZodError } from 'zod';
 
 // ─── Prototype Pollution Defense ───
@@ -26,7 +29,7 @@ app.use(
     origin: env.CORS_ORIGIN,
     credentials: true, // Required for cookies
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type'],
+    allowedHeaders: ['Content-Type', 'X-Chunk-Index'],
   }),
 );
 
@@ -45,11 +48,9 @@ app.get('/api/health', (_req, res) => {
 
 // ─── API Routes ───
 app.use('/api/auth', authRoutes);
-
-// Phase 2 stubs — will be implemented next
-// app.use('/api/files', fileRoutes);
-// app.use('/api/public', publicRoutes);
-// app.use('/api/admin', adminRoutes);
+app.use('/api/files', fileRoutes);
+app.use('/api/public', publicRoutes);
+app.use('/api/admin', adminRoutes);
 
 // ─── Zod Validation Error Handler ───
 app.use(

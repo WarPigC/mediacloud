@@ -56,13 +56,31 @@ export async function removeUserDirectory(userId: string): Promise<void> {
 }
 
 /**
- * Ensures the storage mount points exist at startup.
- * In development, creates the directories if they don't exist.
+ * Verifies (production) or creates (development) storage directories.
+ * In production/Docker, mount points must already exist.
+ * In development, creates local fallback directories.
  */
 export async function ensureStorageMounts(): Promise<void> {
-  await fs.mkdir(env.EXT4_MOUNT_PATH, { recursive: true });
-  await fs.mkdir(env.NTFS_MOUNT_PATH, { recursive: true });
+  const isDev = process.env.NODE_ENV !== 'production';
+
+  for (const mount of [env.EXT4_MOUNT_PATH, env.NTFS_MOUNT_PATH]) {
+    try {
+      await fs.access(mount);
+    } catch {
+      if (isDev) {
+        await fs.mkdir(mount, { recursive: true });
+      } else {
+        throw new Error(
+          `Mount not found at ${mount}. ` +
+          `Ensure the drive is mounted or the Docker volume is mapped.`,
+        );
+      }
+    }
+  }
+
+  // Create the _tmp directory for chunk assembly (under ext4)
   await ensureTempDirectory();
+
   console.log(`✅ Storage mounts verified:`);
   console.log(`   ext4  → ${env.EXT4_MOUNT_PATH}`);
   console.log(`   ntfs  → ${env.NTFS_MOUNT_PATH}`);

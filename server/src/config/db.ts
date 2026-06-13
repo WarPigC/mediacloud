@@ -35,7 +35,7 @@ if (process.env.NODE_ENV !== 'production') {
  *   immediately throwing SQLITE_BUSY.
  */
 export async function configureSQLite(): Promise<void> {
-  await prisma.$executeRawUnsafe('PRAGMA journal_mode = WAL;');
-  await prisma.$executeRawUnsafe('PRAGMA busy_timeout = 5000;');
+  await prisma.$queryRawUnsafe('PRAGMA journal_mode = WAL;');
+  await prisma.$queryRawUnsafe('PRAGMA busy_timeout = 5000;');
   console.log('✅ SQLite configured: WAL mode + 5s busy timeout');
 }

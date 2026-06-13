@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@mediacloud/shared": "*",
+    "@uppy/core": "^4.5.3",
     "framer-motion": "^11.15.0",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
