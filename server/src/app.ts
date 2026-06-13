@@ -62,7 +62,7 @@ if (env.NODE_ENV === 'production') {
   app.use(express.static(publicDir, { maxAge: '1y', immutable: true }));
 
   // SPA catch-all: any non-API GET → index.html (client-side router takes over)
-app.get('/(.*)', (req, res) => {
+  app.get('/*splat', (_req, res) => {
     res.sendFile(path.join(publicDir, 'index.html'));
   });
 }
