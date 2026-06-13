@@ -127,10 +127,10 @@ router.get(
       prisma.user.aggregate({ _sum: { usedStorageBytes: true } }),
     ]);
 
-    // Check disk space on ext4 mount
+    // Check disk space on NTFS mount (Admin storage)
     let diskInfo = { free: 0, total: 0 };
     try {
-      const stats = await fs.statfs(env.EXT4_MOUNT_PATH);
+      const stats = await fs.statfs(env.NTFS_MOUNT_PATH);
       diskInfo = {
         free: Number(stats.bfree * stats.bsize),
         total: Number(stats.blocks * stats.bsize),
