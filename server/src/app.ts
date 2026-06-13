@@ -20,7 +20,20 @@ const app = express();
 // ─── Security Headers ───
 app.use(
   helmet({
-    contentSecurityPolicy: env.NODE_ENV === 'production' ? undefined : false,
+    contentSecurityPolicy:
+      env.NODE_ENV === 'production'
+        ? {
+            useDefaults: true,
+            directives: {
+              upgradeInsecureRequests: null, // Don't force HTTPS upgrades for local IP access
+              defaultSrc: ["'self'"],
+              imgSrc: ["'self'", 'data:', 'blob:'],
+              scriptSrc: ["'self'", "'unsafe-inline'"],
+              styleSrc: ["'self'", "'unsafe-inline'"],
+            },
+          }
+        : false,
+    hsts: false, // Disable HSTS to prevent local IP lock-in to HTTPS
   }),
 );
 
