@@ -11,7 +11,7 @@ import type { UserProfile } from '@mediacloud/shared';
 
 function signAccessToken(payload: JwtPayload): string {
   return jwt.sign(payload, env.JWT_SECRET, {
-    expiresIn: env.JWT_EXPIRY,
+    expiresIn: env.JWT_EXPIRY as any,
   });
 }
 

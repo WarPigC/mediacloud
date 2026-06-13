@@ -62,7 +62,7 @@ router.post(
   uploadLimiter,
   pathGuard,
   asyncHandler(async (req, res) => {
-    const { sessionId } = req.params;
+    const sessionId = req.params.sessionId as string;
     const chunkIndexHeader = req.headers['x-chunk-index'];
 
     if (chunkIndexHeader === undefined) {
@@ -121,7 +121,7 @@ router.post(
   '/upload/:sessionId/complete',
   pathGuard,
   asyncHandler(async (req, res) => {
-    const { sessionId } = req.params;
+    const sessionId = req.params.sessionId as string;
 
     const result = await uploadService.completeUpload(
       sessionId,
@@ -139,7 +139,7 @@ router.delete(
   '/upload/:sessionId/abort',
   pathGuard,
   asyncHandler(async (req, res) => {
-    await uploadService.abortUpload(req.params.sessionId, req.user!.userId);
+    await uploadService.abortUpload(req.params.sessionId as string, req.user!.userId);
     res.json({ success: true });
   }),
 );
@@ -171,7 +171,7 @@ router.get(
   pathGuard,
   asyncHandler(async (req, res) => {
     const info = await fileService.getDownloadInfo(
-      req.params.fileId,
+      req.params.fileId as string,
       req.user!.userId,
       req.user!.role,
     );
@@ -198,7 +198,7 @@ router.delete(
   pathGuard,
   asyncHandler(async (req, res) => {
     await fileService.deleteFile(
-      req.params.fileId,
+      req.params.fileId as string,
       req.user!.userId,
       req.user!.role,
     );
@@ -214,7 +214,7 @@ router.post(
   pathGuard,
   asyncHandler(async (req, res) => {
     const hash = await fileService.enableSharing(
-      req.params.fileId,
+      req.params.fileId as string,
       req.user!.userId,
     );
 
@@ -229,7 +229,7 @@ router.delete(
   pathGuard,
   asyncHandler(async (req, res) => {
     await fileService.disableSharing(
-      req.params.fileId,
+      req.params.fileId as string,
       req.user!.userId,
     );
 

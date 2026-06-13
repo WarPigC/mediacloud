@@ -18,7 +18,7 @@ router.use(publicDownloadLimiter);
 router.get(
   '/d/:hash',
   asyncHandler(async (req, res) => {
-    const metadata = await fileService.getShareMetadata(req.params.hash);
+    const metadata = await fileService.getShareMetadata(req.params.hash as string);
     res.json({ success: true, data: metadata });
   }),
 );
@@ -27,7 +27,7 @@ router.get(
 router.get(
   '/d/:hash/download',
   asyncHandler(async (req, res) => {
-    const info = await fileService.getPublicDownloadInfo(req.params.hash);
+    const info = await fileService.getPublicDownloadInfo(req.params.hash as string);
 
     res.setHeader(
       'Content-Disposition',

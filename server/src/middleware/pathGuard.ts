@@ -69,7 +69,7 @@ export function pathGuard(req: Request, res: Response, next: NextFunction): void
   ];
 
   for (const param of allParams) {
-    const decoded = decodeURIComponent(param);
+    const decoded = decodeURIComponent(param as string);
     if (suspicious.some((p) => decoded.includes(p))) {
       res.status(403).json({ success: false, error: 'Path traversal detected' });
       return;

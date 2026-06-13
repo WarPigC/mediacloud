@@ -65,7 +65,7 @@ router.post(
 router.delete(
   '/users/:userId',
   asyncHandler(async (req, res) => {
-    const { userId } = req.params;
+    const userId = req.params.userId as string;
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
@@ -102,7 +102,7 @@ router.patch(
     const body = quotaSchema.parse(req.body);
 
     const user = await prisma.user.update({
-      where: { id: req.params.userId },
+      where: { id: req.params.userId as string },
       data: { storageQuotaBytes: BigInt(body.storageQuotaBytes) },
       select: {
         id: true,

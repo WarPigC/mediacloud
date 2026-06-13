@@ -150,7 +150,7 @@ export async function receiveChunk(
     if (aborted) return;
     aborted = true;
     writeStream.destroy();
-    dataStream.destroy();
+    (dataStream as any).destroy();
     // Remove partial file if connection dropped
     try {
       await fs.unlink(partialPath);
