@@ -33,9 +33,6 @@ RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists
 
 # Copy deps from stage 1
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/packages/shared/node_modules ./packages/shared/node_modules 2>/dev/null || true
-COPY --from=deps /app/server/node_modules ./server/node_modules 2>/dev/null || true
-COPY --from=deps /app/client/node_modules ./client/node_modules 2>/dev/null || true
 
 # Copy all source
 COPY . .
