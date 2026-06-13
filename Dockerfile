@@ -63,6 +63,7 @@ COPY --from=build /app/packages/shared ./packages/shared
 COPY --from=build /app/server/package.json ./server/
 COPY --from=build /app/server/dist ./server/dist
 COPY --from=build /app/server/prisma ./server/prisma
+COPY --from=build /app/server/scripts ./server/scripts
 
 # ── Key: Move Vite's built frontend INTO the server's public dir ──
 # Express serves these statically in production via express.static()
