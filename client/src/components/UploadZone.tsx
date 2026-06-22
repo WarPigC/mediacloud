@@ -38,6 +38,10 @@ export default function UploadZone() {
         );
         const f = uppy.getFile(fileId);
         addToast(`"${f?.name}" uploaded`, 'success');
+
+        // Remove the completed file from Uppy's internal state so it
+        // cannot be re-uploaded when the user adds new files later.
+        try { uppy.removeFile(fileId); } catch { /* already removed */ }
       },
       onError: (fileId: string, error: Error) => {
         setUploadFiles((prev) =>
@@ -45,6 +49,9 @@ export default function UploadZone() {
         );
         const f = uppy.getFile(fileId);
         addToast(`"${f?.name}" failed: ${error.message}`, 'error');
+
+        // Also remove errored files from Uppy so they don't block future uploads
+        try { uppy.removeFile(fileId); } catch { /* already removed */ }
       },
       onProgress: (fileId: string, pct: number) => {
         setUploadFiles((prev) =>
@@ -84,6 +91,15 @@ export default function UploadZone() {
   const startUpload = async () => {
     const uppy = uppyRef.current;
     if (!uppy || uploading) return;
+
+    // Only upload files that Uppy still knows about (pending ones).
+    // Already-completed files have been removed from Uppy's registry.
+    const pendingUppyFiles = uppy.getFiles();
+    if (pendingUppyFiles.length === 0) {
+      addToast('No pending files to upload', 'error');
+      return;
+    }
+
     setUploading(true);
     try {
       await uppy.upload();
@@ -92,6 +108,12 @@ export default function UploadZone() {
     } finally {
       setUploading(false);
       refreshUser();
+
+      // Auto-clear completed/errored entries from the UI queue after a short delay
+      // so the user can briefly see the success checkmarks before they disappear.
+      setTimeout(() => {
+        setUploadFiles((prev) => prev.filter((f) => f.status !== 'complete' && f.status !== 'error'));
+      }, 2000);
     }
   };
 
@@ -114,7 +136,17 @@ export default function UploadZone() {
   };
 
   const pendingCount = uploadFiles.filter((f) => f.status === 'pending').length;
+  const uploadingCount = uploadFiles.filter((f) => f.status === 'uploading').length;
   const completedCount = uploadFiles.filter((f) => f.status === 'complete').length;
+  const errorCount = uploadFiles.filter((f) => f.status === 'error').length;
+
+  const statusLabel = uploadingCount > 0
+    ? `Uploading ${uploadingCount} file(s)...`
+    : pendingCount > 0
+      ? `${pendingCount} file(s) ready`
+      : completedCount > 0 || errorCount > 0
+        ? `${completedCount} completed${errorCount > 0 ? `, ${errorCount} failed` : ''}`
+        : '';
 
   return (
     <div>
@@ -145,7 +177,7 @@ export default function UploadZone() {
           type="file"
           multiple
           className="hidden"
-          onChange={(e) => e.target.files && addFiles(e.target.files)}
+          onChange={(e) => { e.target.files && addFiles(e.target.files); e.target.value = ''; }}
         />
       </motion.div>
 
@@ -159,10 +191,10 @@ export default function UploadZone() {
           >
             <div className="mb-3 flex items-center justify-between">
               <span className="text-sm text-surface-200">
-                {pendingCount > 0 ? `${pendingCount} file(s) ready` : `${completedCount} completed`}
+                {statusLabel}
               </span>
               <div className="flex gap-2">
-                {completedCount > 0 && (
+                {(completedCount > 0 || errorCount > 0) && (
                   <button onClick={clearCompleted} className="text-xs text-surface-200 hover:text-white">
                     Clear finished
                   </button>
