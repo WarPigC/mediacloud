@@ -115,13 +115,13 @@ async function uploadSingleFile(uppy: Uppy, fileID: string, opts: ChunkedUploade
     const result = await completeRes.json();
     
     // Crucial: Tell Uppy the file is done so it doesn't try to re-upload it
-    uppy.setFileState(fileID, { progress: { uploadComplete: true, uploadStarted: true } });
+    uppy.setFileState(fileID, { progress: { uploadComplete: Date.now(), uploadStarted: Date.now() } } as any);
     uppy.emit('upload-success', file, result);
     
     opts.onComplete?.(fileID, result.data);
   } catch (err) {
     const error = err instanceof Error ? err : new Error('Upload failed');
-    uppy.setFileState(fileID, { progress: { uploadComplete: false, uploadStarted: true } });
+    uppy.setFileState(fileID, { progress: { uploadComplete: 0, uploadStarted: Date.now() } } as any);
     uppy.emit('upload-error', file, error);
     opts.onError?.(fileID, error);
     throw error;

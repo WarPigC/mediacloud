@@ -144,6 +144,23 @@ router.delete(
   }),
 );
 
+// ─── Browse Filesystem (Admin Only — Lazy Indexing) ───
+
+router.get(
+  '/browse',
+  asyncHandler(async (req, res) => {
+    const browsePath = (req.query.path as string) || '';
+
+    const result = await fileService.browseDirectory(
+      req.user!.userId,
+      req.user!.role,
+      browsePath,
+    );
+
+    res.json({ success: true, data: result });
+  }),
+);
+
 // ─── List Files ───
 
 router.get(

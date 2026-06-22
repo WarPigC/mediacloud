@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FolderOpen, Upload, Shield } from 'lucide-react';
+import { FolderOpen, Upload, Shield, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const items = [
@@ -9,7 +9,7 @@ const items = [
 ];
 
 export default function BottomNav() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const allItems = user?.role === 'admin'
     ? [...items, { to: '/admin', icon: Shield, label: 'Admin' }]
     : items;
@@ -42,6 +42,15 @@ export default function BottomNav() {
             )}
           </NavLink>
         ))}
+
+        {/* Logout button */}
+        <button
+          onClick={logout}
+          className="relative flex flex-col items-center gap-0.5 px-4 py-1 text-xs font-medium text-surface-200 transition-colors hover:text-red-400"
+        >
+          <LogOut className="h-5 w-5" />
+          <span>Logout</span>
+        </button>
       </div>
     </nav>
   );
