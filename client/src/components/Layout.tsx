@@ -27,7 +27,7 @@ export default function Layout() {
   }
 
   return (
-    <div className="flex min-h-screen bg-surface-900">
+    <div className="flex min-h-[100dvh] w-full max-w-full flex-col overflow-x-hidden bg-surface-900 sm:flex-row">
       {/* Desktop sidebar */}
       <Sidebar />
 

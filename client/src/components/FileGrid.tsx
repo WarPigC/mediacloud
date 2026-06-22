@@ -44,22 +44,22 @@ export default function FileGrid() {
   const usedPct = user ? Math.round((user.usedStorageBytes / user.storageQuotaBytes) * 100) : 0;
 
   return (
-    <div>
+    <div className="w-full min-w-0">
       {/* Header with quota */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">My Files</h1>
+          <h1 className="text-xl font-bold text-white sm:text-2xl">My Files</h1>
           {user && user.role !== 'admin' && (
-            <p className="mt-1 text-sm text-surface-200">
+            <p className="mt-1 text-xs text-surface-200 sm:text-sm">
               {formatBytes(user.usedStorageBytes)} of {formatBytes(user.storageQuotaBytes)} used
             </p>
           )}
         </div>
         <button
           onClick={fetchFiles}
-          className="flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-sm text-surface-200 transition-colors hover:bg-white/10 hover:text-white"
+          className="flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-1.5 text-xs text-surface-200 transition-colors hover:bg-white/10 hover:text-white sm:gap-2 sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
         >
-          <RefreshCw className="h-4 w-4" />
+          <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           Refresh
         </button>
       </div>
@@ -93,7 +93,7 @@ export default function FileGrid() {
         </motion.div>
       ) : (
         <AnimatePresence mode="popLayout">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3">
             {files.map((f, i) => (
               <FileCard key={f.id} file={f} onDelete={handleDelete} index={i} />
             ))}

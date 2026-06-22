@@ -37,7 +37,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 sm:bottom-6 sm:right-6">
+      <div className="fixed bottom-20 left-4 right-4 z-50 flex flex-col items-center gap-2 sm:bottom-6 sm:left-auto sm:items-end">
         <AnimatePresence>
           {toasts.map((t) => {
             const Icon = icons[t.type];
@@ -47,10 +47,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 100, scale: 0.95 }}
-                className={`flex items-center gap-3 rounded-xl border px-4 py-3 shadow-2xl backdrop-blur-xl ${colors[t.type]}`}
+                className={`flex w-full max-w-sm items-center gap-3 rounded-xl border px-4 py-3 shadow-2xl backdrop-blur-xl sm:w-auto ${colors[t.type]}`}
               >
                 <Icon className="h-5 w-5 shrink-0" />
-                <span className="text-sm font-medium">{t.message}</span>
+                <span className="min-w-0 flex-1 break-words text-sm font-medium">{t.message}</span>
                 <button onClick={() => dismiss(t.id)} className="ml-2 shrink-0 opacity-60 hover:opacity-100">
                   <X className="h-4 w-4" />
                 </button>
