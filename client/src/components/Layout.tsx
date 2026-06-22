@@ -32,13 +32,13 @@ export default function Layout() {
       <Sidebar />
 
       {/* Main content */}
-      <main className="flex-1 pb-20 sm:pb-0 sm:pl-64">
+      <main className="min-w-0 flex-1 overflow-x-hidden pb-20 sm:pb-0 sm:pl-64">
         <motion.div
           key={location.pathname}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-8"
+          className="mx-auto min-w-0 max-w-6xl p-3 sm:p-6 lg:p-8"
         >
           <Outlet />
         </motion.div>
